@@ -10,15 +10,30 @@ namespace DemoWebApi.Controllers
 {
     public class EmployeesController : ApiController
     {
-        public IEnumerable<Employees> Get()
+
+        public HttpResponseMessage Get(string gender = "All")
         {
             using (EmployeeDBEntities entities = new EmployeeDBEntities())
             {
-                return entities.Employees.ToList();
+                switch (gender.ToLower())
+                {
+                    case "all":
+                        return Request.CreateResponse(HttpStatusCode.OK, entities.Employees.ToList());
+                    case "male":
+                        return Request.CreateResponse(HttpStatusCode.OK, entities.Employees.Where(e => e.Gender.ToLower() == "male").ToList());
+                    case "female":
+                        return Request.CreateResponse(HttpStatusCode.OK, entities.Employees.Where(e =>e.Gender.ToLower() == "female").ToList());
+
+                    default:
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Value for gender must be all,male or female  " +  gender + "  is invalid");
+
+                        
+                }
             }
 
         }
-        public HttpResponseMessage Get(int id)
+        [HttpGet]
+        public HttpResponseMessage LoadAllemployessById(int id)
         {
             using (EmployeeDBEntities entities = new EmployeeDBEntities())
             {
@@ -35,7 +50,8 @@ namespace DemoWebApi.Controllers
             }
 
         }
-        public HttpResponseMessage Post([FromBody] Employees employees)
+        [HttpPost]
+        public HttpResponseMessage CreateEmployee([FromBody] Employees employees)
         {
             try
             {
@@ -58,8 +74,8 @@ namespace DemoWebApi.Controllers
 
 
         }
-
-        public HttpResponseMessage Deleted(int id)
+        [HttpDelete]
+        public HttpResponseMessage DeleteEmployeeById(int id)
         {
             try
             {
@@ -82,7 +98,6 @@ namespace DemoWebApi.Controllers
                     }
 
                 }
-
             }
             catch (Exception ex)
             {
@@ -91,7 +106,8 @@ namespace DemoWebApi.Controllers
             }
 
         }
-        public HttpResponseMessage Put(int id, [FromBody] Employees employees)
+        [HttpPut]
+        public HttpResponseMessage UpdateEmployeeById(int id, [FromBody] Employees employees)
         {
             try
             {
@@ -131,7 +147,7 @@ namespace DemoWebApi.Controllers
 
         }
     }
-         
 
-} 
+
+}
 
